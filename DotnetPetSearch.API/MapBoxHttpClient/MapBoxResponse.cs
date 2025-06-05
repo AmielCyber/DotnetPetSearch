@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace DotnetPetSearch.API.HttpClients.MapBox;
+namespace DotnetPetSearch.API.MapBoxHttpClient;
 
 public class MapBoxResponse
 {
@@ -11,10 +11,10 @@ public class MapBoxResponse
 public class MapBoxFeatures
 {
     [JsonPropertyName("properties")]
-    public required Properties Properties { get; set; }
+    public required MapBoxProperties MapBoxProperties { get; set; }
 }
 
-public class Properties
+public class MapBoxProperties
 {
     [JsonPropertyName("place_formatted")]
     public required string Location { get; set; }

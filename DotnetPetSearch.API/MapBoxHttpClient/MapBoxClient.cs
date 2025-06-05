@@ -4,7 +4,7 @@ using DotnetPetSearch.API.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Options;
 
-namespace DotnetPetSearch.API.HttpClients.MapBox;
+namespace DotnetPetSearch.API.MapBoxHttpClient;
 
 public class MapBoxClient : IMapBoxClient
 {
@@ -46,8 +46,8 @@ public class MapBoxClient : IMapBoxClient
 
         return TypedResults.Ok(new LocationDto
         {
-            LocationName = features.Properties.Location,
-            Zipcode = features.Properties.ZipCode,
+            LocationName = features.MapBoxProperties.Location,
+            Zipcode = features.MapBoxProperties.ZipCode,
         });
     }
 

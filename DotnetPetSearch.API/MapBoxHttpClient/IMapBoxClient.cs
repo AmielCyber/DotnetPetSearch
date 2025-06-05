@@ -1,8 +1,7 @@
 using DotnetPetSearch.API.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
-namespace DotnetPetSearch.API.HttpClients.MapBox;
+namespace DotnetPetSearch.API.MapBoxHttpClient;
 
 public interface IMapBoxClient
 {

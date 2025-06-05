@@ -12,7 +12,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="HttpClients\PetFinder\" />
       <Folder Include="Services\" />
     </ItemGroup>
 

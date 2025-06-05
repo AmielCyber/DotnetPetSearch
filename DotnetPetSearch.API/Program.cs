@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 using DotnetPetSearch.API.Configurations;
-using DotnetPetSearch.API.HttpClients.MapBox;
+using DotnetPetSearch.API.MapBoxHttpClient;
 
 var builder = WebApplication.CreateBuilder(args);
 

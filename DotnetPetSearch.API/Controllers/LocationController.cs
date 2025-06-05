@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using DotnetPetSearch.API.HttpClients.MapBox;
+using DotnetPetSearch.API.MapBoxHttpClient;
 using DotnetPetSearch.API.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,7 @@ public class LocationController : ControllerBase
 
     public LocationController(IMapBoxClient mapBoxClient) => _mapBoxClient = mapBoxClient;
 
-    [HttpGet("{zipcode}")]
+    [HttpGet("zipcode/{zipcode}")]
     public async Task<Results<Ok<LocationDto>, ProblemHttpResult>> GetLocationFromZipCodeAsync(
         [RegularExpression(@"^\d{5}$", ErrorMessage = "Zip Code must be 5 digits.")]
         string zipcode
