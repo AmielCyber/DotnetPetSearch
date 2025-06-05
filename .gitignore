@@ -5,3 +5,4 @@ riderModule.iml
 /_ReSharper.Caches/
 DotnetPetSearch.sln.DotSettings.user
 .idea/**
+.DS_Store
