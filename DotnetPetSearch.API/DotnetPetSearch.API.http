@@ -1,6 +1,10 @@
-@DotnetPetSearch.API_HostAddress = http://localhost:5046
+@DotnetPetSearch_HostAddress = http://localhost:5046
 
-GET {{DotnetPetSearch.API_HostAddress}}/weatherforecast/
+### Get Location Data for San Diego's zipcode.
+GET {{DotnetPetSearch_HostAddress}}/api/location/zipcode/92101
 Accept: application/json
 
-###
+### Get Location Data for San Diego Zoo's coordinates.
+GET {{DotnetPetSearch_HostAddress}}/api/location/coordinates?latitude=32.7310927&longitude=-117.1543808
+Accept: application/json
+
