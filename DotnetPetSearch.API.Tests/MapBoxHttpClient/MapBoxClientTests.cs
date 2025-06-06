@@ -18,7 +18,7 @@ public class MapBoxClientTests
     private const double DefaultLatitude = 32.7270;
     private const double DefaultLongitude = 117.1647;
     
-    private readonly Uri _defaultUri = new Uri("https://mapbox.io");
+    private readonly Uri _defaultUri = new Uri("https://mapbox.com");
     private readonly MockHttpMessageHandler _mockHttp;
     private readonly IOptions<MapBoxConfiguration> _mapBoxConfiguration;
     private readonly LocationDto _expectedDefaultLocationDto;
