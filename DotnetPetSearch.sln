@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetPetSearch.API", "Dotn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetPetSearch.API.Tests", "DotnetPetSearch.API.Tests\DotnetPetSearch.API.Tests.csproj", "{BA98B0F0-6C0C-4814-B4FD-F5A7B63BEF0C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetPetSearch.Data", "DotnetPetSearch.Data\DotnetPetSearch.Data.csproj", "{EB899090-E9BE-4BB7-8B47-34B4CF1A5791}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{BA98B0F0-6C0C-4814-B4FD-F5A7B63BEF0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA98B0F0-6C0C-4814-B4FD-F5A7B63BEF0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA98B0F0-6C0C-4814-B4FD-F5A7B63BEF0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB899090-E9BE-4BB7-8B47-34B4CF1A5791}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB899090-E9BE-4BB7-8B47-34B4CF1A5791}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB899090-E9BE-4BB7-8B47-34B4CF1A5791}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB899090-E9BE-4BB7-8B47-34B4CF1A5791}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
