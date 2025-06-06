@@ -2,6 +2,10 @@ using System.Text.Json.Serialization;
 
 namespace DotnetPetSearch.API.MapBoxHttpClient;
 
+/// <summary>
+/// MapBox Response object from the API (https://docs.mapbox.com/api/search/geocoding/).
+/// Only properties used in this application are shown here.
+/// </summary>
 public class MapBoxResponse
 {
     [JsonPropertyName("features")]

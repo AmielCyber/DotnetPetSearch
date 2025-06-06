@@ -9,22 +9,18 @@ public class MapBoxConfiguration
 
     public string GetZipCodeQuery(string zipcode)
     {
-        List<KeyValuePair<string, string?>> options =
-        [
-            new("q", zipcode),
-            ..Options,
-        ];
-        return QueryHelpers.AddQueryString($"forward", options);
+        IEnumerable<KeyValuePair<string, string?>> zipcodeOptions = Options
+            .Prepend(new KeyValuePair<string, string?>("q", zipcode));
+            
+        return QueryHelpers.AddQueryString($"forward", zipcodeOptions);
     }
 
     public string GetCoordsQuery(double longitude, double latitude)
     {
-        List<KeyValuePair<string, string?>> options =
-        [
-            new("longitude", longitude.ToString(CultureInfo.InvariantCulture)),
-            new("latitude", latitude.ToString(CultureInfo.InvariantCulture)),
-            ..Options,
-        ];
-        return QueryHelpers.AddQueryString($"reverse", options);
+        IEnumerable<KeyValuePair<string, string?>> coordsOptions = Options
+            .Prepend(new KeyValuePair<string, string?>("latitude", latitude.ToString(CultureInfo.InvariantCulture)))
+            .Prepend(new KeyValuePair<string, string?>("longitude", longitude.ToString(CultureInfo.InvariantCulture)));
+            
+        return QueryHelpers.AddQueryString($"reverse", coordsOptions);
     }
 }
