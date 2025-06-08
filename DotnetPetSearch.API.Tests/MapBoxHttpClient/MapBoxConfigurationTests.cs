@@ -1,6 +1,6 @@
-using DotnetPetSearch.API.Configurations;
+using DotnetPetSearch.API.MapBoxHttpClient;
 
-namespace DotnetPetSearch.API.Tests.Configurations;
+namespace DotnetPetSearch.API.Tests.MapBoxHttpClient;
 
 public class MapBoxConfigurationTests
 {
@@ -14,16 +14,16 @@ public class MapBoxConfigurationTests
     public MapBoxConfigurationTests()
     {
         // Arrange
-        _expectedOptions = new Dictionary<string, string?>()
+        _expectedOptions = new Dictionary<string, string?>
             { { "key", "value" }, { "key2", "value2" }, { "key3", "value3" } };
-        _mapBoxConfiguration = new MapBoxConfiguration() { Options = _expectedOptions };
+        _mapBoxConfiguration = new MapBoxConfiguration { Options = _expectedOptions };
     }
 
     [Fact]
     public void GetZipCodeQuery_ShouldReturn_ForwardUri()
     {
-        string actualQuery = _mapBoxConfiguration.GetZipCodeQuery(DefaultZipcode);  // Action
-        Assert.Contains("forward?", actualQuery);                                   // Assert
+        var actualQuery = _mapBoxConfiguration.GetZipCodeQuery(DefaultZipcode); // Action
+        Assert.Contains("forward?", actualQuery); // Assert
     }
 
     [Theory]
@@ -31,39 +31,39 @@ public class MapBoxConfigurationTests
     [InlineData("90210")]
     public void GetZipCodeQuery_ShouldReturn_ExpectedZipcodeQuery(string expectedZipcode)
     {
-        string actualQuery = _mapBoxConfiguration.GetZipCodeQuery(expectedZipcode);
+        var actualQuery = _mapBoxConfiguration.GetZipCodeQuery(expectedZipcode);
         Assert.Contains($"q={expectedZipcode}", actualQuery);
     }
 
     [Fact]
     public void GetZipCodeQuery_ShouldReturn_ExpectedQueryOptions()
     {
-        string actualQuery = _mapBoxConfiguration.GetZipCodeQuery(DefaultZipcode);
+        var actualQuery = _mapBoxConfiguration.GetZipCodeQuery(DefaultZipcode);
         foreach (KeyValuePair<string, string?> query in _expectedOptions)
             Assert.Contains($"{query.Key}={query.Value}", actualQuery);
     }
-    
+
     [Fact]
     public void GetCoordsQuery_ShouldReturn_ReverseUri()
     {
-        string actualQuery = _mapBoxConfiguration.GetCoordsQuery(DefaultLongitude, DefaultLatitude);
-        Assert.Contains("reverse?", actualQuery);                                   
+        var actualQuery = _mapBoxConfiguration.GetCoordsQuery(DefaultLongitude, DefaultLatitude);
+        Assert.Contains("reverse?", actualQuery);
     }
-    
+
     [Theory]
     [InlineData(1.123, 85.333)]
     [InlineData(3.14, 8.332)]
     public void GetZipCodeQuery_ShouldReturn_ExpectedCoordsQuery(double expectedLongitude, double expectedLatitude)
     {
-        string actualQuery = _mapBoxConfiguration.GetCoordsQuery(expectedLongitude, expectedLatitude);
+        var actualQuery = _mapBoxConfiguration.GetCoordsQuery(expectedLongitude, expectedLatitude);
         Assert.Contains($"longitude={expectedLongitude}", actualQuery);
         Assert.Contains($"latitude={expectedLatitude}", actualQuery);
     }
-    
+
     [Fact]
     public void GetCoordsQuery_ShouldReturn_ExpectedQueryOptions()
     {
-        string actualQuery = _mapBoxConfiguration.GetCoordsQuery(DefaultLongitude, DefaultLatitude);
+        var actualQuery = _mapBoxConfiguration.GetCoordsQuery(DefaultLongitude, DefaultLatitude);
         foreach (KeyValuePair<string, string?> query in _expectedOptions)
             Assert.Contains($"{query.Key}={query.Value}", actualQuery);
     }

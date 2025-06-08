@@ -4,16 +4,15 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-      <UserSecretsId>4bdfe9de-ce9d-4644-a70c-d7cf31af9ad3</UserSecretsId>
-  </PropertyGroup>
+        <UserSecretsId>4bdfe9de-ce9d-4644-a70c-d7cf31af9ad3</UserSecretsId>
+    </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="PetFinderHttpClient\" />
-      <Folder Include="Services\" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.16">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
 </Project>
