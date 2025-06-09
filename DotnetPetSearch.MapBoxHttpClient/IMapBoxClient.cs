@@ -1,4 +1,4 @@
-namespace DotnetPetSearch.API.MapBoxHttpClient;
+namespace DotnetPetSearch.MapBoxHttpClient;
 
 /// <summary>
 ///     MapBox contract to get a displayable location name and zipcode from either

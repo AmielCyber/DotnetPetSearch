@@ -1,5 +1,5 @@
 using System.Collections.Immutable;
-using DotnetPetSearch.API.MapBoxHttpClient;
+using DotnetPetSearch.MapBoxHttpClient;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 

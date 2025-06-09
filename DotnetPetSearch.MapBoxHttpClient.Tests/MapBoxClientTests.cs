@@ -1,12 +1,11 @@
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
-using DotnetPetSearch.API.MapBoxHttpClient;
 using Microsoft.Extensions.Options;
 using NSubstitute;
 using RichardSzalay.MockHttp;
 
-namespace DotnetPetSearch.API.Tests.MapBoxHttpClient;
+namespace DotnetPetSearch.MapBoxHttpClient.Tests;
 
 public class MapBoxClientTests
 {

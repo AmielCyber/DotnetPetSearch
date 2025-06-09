@@ -1,5 +1,5 @@
-using DotnetPetSearch.API.MapBoxHttpClient;
 using DotnetPetSearch.API.Models;
+using DotnetPetSearch.MapBoxHttpClient;
 
 namespace DotnetPetSearch.API.Extensions;
 

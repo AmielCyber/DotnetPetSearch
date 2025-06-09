@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using DotnetPetSearch.API.Extensions;
-using DotnetPetSearch.API.MapBoxHttpClient;
 using DotnetPetSearch.API.Models;
+using DotnetPetSearch.MapBoxHttpClient;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 

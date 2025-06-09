@@ -1,6 +1,4 @@
-using DotnetPetSearch.API.MapBoxHttpClient;
-
-namespace DotnetPetSearch.API.Tests.MapBoxHttpClient;
+namespace DotnetPetSearch.MapBoxHttpClient.Tests;
 
 public class MapBoxConfigurationTests
 {

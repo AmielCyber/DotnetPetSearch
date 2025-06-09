@@ -2,9 +2,9 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetPetSearch.API", "DotnetPetSearch.API\DotnetPetSearch.API.csproj", "{5A1AF512-6A6A-4F3D-993C-ECF4AEFF35E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetPetSearch.API.Tests", "DotnetPetSearch.API.Tests\DotnetPetSearch.API.Tests.csproj", "{BA98B0F0-6C0C-4814-B4FD-F5A7B63BEF0C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetPetSearch.MapBoxHttpClient", "DotnetPetSearch.MapBoxHttpClient\DotnetPetSearch.MapBoxHttpClient.csproj", "{7F55317D-7818-4323-A98E-4DC4CEC44E6F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetPetSearch.Data", "DotnetPetSearch.Data\DotnetPetSearch.Data.csproj", "{EB899090-E9BE-4BB7-8B47-34B4CF1A5791}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotnetPetSearch.MapBoxHttpClient.Tests", "DotnetPetSearch.MapBoxHttpClient.Tests\DotnetPetSearch.MapBoxHttpClient.Tests.csproj", "{E8388C9E-CA66-4E1C-AD68-2DBBF6075006}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -16,13 +16,13 @@ Global
 		{5A1AF512-6A6A-4F3D-993C-ECF4AEFF35E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A1AF512-6A6A-4F3D-993C-ECF4AEFF35E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A1AF512-6A6A-4F3D-993C-ECF4AEFF35E3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BA98B0F0-6C0C-4814-B4FD-F5A7B63BEF0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA98B0F0-6C0C-4814-B4FD-F5A7B63BEF0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA98B0F0-6C0C-4814-B4FD-F5A7B63BEF0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA98B0F0-6C0C-4814-B4FD-F5A7B63BEF0C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EB899090-E9BE-4BB7-8B47-34B4CF1A5791}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EB899090-E9BE-4BB7-8B47-34B4CF1A5791}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EB899090-E9BE-4BB7-8B47-34B4CF1A5791}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EB899090-E9BE-4BB7-8B47-34B4CF1A5791}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F55317D-7818-4323-A98E-4DC4CEC44E6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F55317D-7818-4323-A98E-4DC4CEC44E6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F55317D-7818-4323-A98E-4DC4CEC44E6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F55317D-7818-4323-A98E-4DC4CEC44E6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8388C9E-CA66-4E1C-AD68-2DBBF6075006}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8388C9E-CA66-4E1C-AD68-2DBBF6075006}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8388C9E-CA66-4E1C-AD68-2DBBF6075006}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8388C9E-CA66-4E1C-AD68-2DBBF6075006}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
