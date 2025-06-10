@@ -16,7 +16,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DotnetPetSearch.MapBoxHttpClient\DotnetPetSearch.MapBoxHttpClient.csproj" />
+        <ProjectReference Include="..\DotnetPetSearch.Data\DotnetPetSearch.Data.csproj"/>
+        <ProjectReference Include="..\DotnetPetSearch.MapBoxHttpClient\DotnetPetSearch.MapBoxHttpClient.csproj"/>
+        <ProjectReference Include="..\DotnetPetSearch.PetFinderHttpClient\DotnetPetSearch.PetFinderHttpClient.csproj"/>
     </ItemGroup>
 
 </Project>
