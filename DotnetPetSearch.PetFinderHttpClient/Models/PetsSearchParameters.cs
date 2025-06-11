@@ -6,32 +6,43 @@ namespace DotnetPetSearch.PetFinderHttpClient.Models;
 /// <summary>
 ///     Pet search query parameters.
 /// </summary>
-/// <param name="Type">
-///     Search for pet type
-///     <example>'dog' or 'cat'</example>
-/// </param>
-/// <param name="Location">Pets within given zip code. Only 5-digit zip codes are supported.</param>
-/// <param name="Page">Page number in the pet list.</param>
-/// <param name="Distance">Distance radius from location request zipcode.</param>
-/// <param name="Sort">
-///     Sort pet list.
-///     <example>Values(- descending): 'distance', '-distance', 'recent', or '-recent'</example>
-/// </param>
-public record PetsSearchParameters(
-    [property: Required]
-    [property: RegularExpression(@"(?:dog|cat)$", ErrorMessage = "Only types: 'cat' and 'dog' are supported")]
-    string Type,
-    [property: Required]
-    [property: RegularExpression(@"^\d{5}$", ErrorMessage = "Zip Code must be 5 digits.")]
-    string Location,
-    [property: Range(1, int.MaxValue, ErrorMessage = "Page must be greater than 0.")]
-    [property: DefaultValue(1)]
-    int Page = 1,
-    [property: Range(0, 500, ErrorMessage = "Distance must be between 0-500")]
-    [property: DefaultValue(25)]
-    int Distance = 25,
-    [property: RegularExpression(@"^-?(recent|distance)$",
+public class PetsSearchParameters
+{
+    /// <summary>
+    ///     Search for pet type
+    ///     <example>'dog' or 'cat'</example>
+    /// </summary>
+    [Required]
+    [RegularExpression(@"(?:dog|cat)$", ErrorMessage = "Only types: 'cat' and 'dog' are supported")]
+    public required string Type { get; init; }
+
+    /// <summary>
+    ///     Search pets within a zipcode. Only 5-digit zipcodes are supported.
+    /// </summary>
+    [Required]
+    [RegularExpression(@"^\d{5}$", ErrorMessage = "Zip Code must be 5 digits.")]
+    public required string Location { get; init; }
+
+    /// <summary>
+    ///     Starting page number from the list.
+    /// </summary>
+    [Range(1, int.MaxValue, ErrorMessage = "Page must be greater than 0.")]
+    [DefaultValue(1)]
+    public int Page { get; init; }
+
+    /// <summary>
+    ///     Distance radius from the requested zipcode.
+    /// </summary>
+    [Range(0, 500, ErrorMessage = "Distance must be between 0-500")]
+    [DefaultValue(25)]
+    public int Distance { get; init; } = 25;
+
+    /// <summary>
+    ///     Sort pet list by distance or recent.
+    ///     <example>Values(- descending): 'distance', '-distance', 'recent', or '-recent'</example>
+    /// </summary>
+    [RegularExpression(@"^-?(recent|distance)$",
         ErrorMessage = "Only location values: 'recent' and 'distance' with optional '-' prefix are accepted")]
-    [property: DefaultValue("distance")]
-    string Sort = "distance"
-);
+    [DefaultValue("distance")]
+    public string SortBy { get; init; } = "distance";
+}

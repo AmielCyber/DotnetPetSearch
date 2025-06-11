@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using DotnetPetSearch.Data.Entities;
@@ -15,9 +16,9 @@ namespace DotnetPetSearch.PetFinderHttpClient.Services;
 public class PetFinderClient : IPetFinderClient
 {
     private readonly ICacheTokenService _cacheTokenService;
+    private readonly PetFinderCredentials _credentials;
     private readonly HttpClient _httpClient;
     private readonly PetFinderOptions _options;
-    private readonly PetFinderTokenRequest _petFinderTokenRequest;
 
     public PetFinderClient(IOptions<PetFinderOptions> options, IOptions<PetFinderCredentials> credentials,
         HttpClient httpClient,
@@ -26,8 +27,7 @@ public class PetFinderClient : IPetFinderClient
         _options = options.Value;
         _httpClient = httpClient;
         _cacheTokenService = cacheTokenService;
-        _petFinderTokenRequest =
-            new PetFinderTokenRequest(credentials.Value.ClientId, credentials.Value.ClientSecret);
+        _credentials = credentials.Value;
     }
 
     /// <summary>
@@ -38,7 +38,7 @@ public class PetFinderClient : IPetFinderClient
     /// <exception cref="HttpRequestException">Throws if method can not make a successful call with PetFinder.</exception>
     public async Task<PetFinderPetListResponse> GetPetsAsync(PetsSearchParameters petsSearchParameters)
     {
-        await SetAuthenticationHeadersForPetFinder();
+        await SetAuthenticationRequestHeaders();
         using HttpResponseMessage response = await _httpClient.GetAsync(GetPathWithQueryString(petsSearchParameters));
         response.EnsureSuccessStatusCode();
 
@@ -55,13 +55,19 @@ public class PetFinderClient : IPetFinderClient
     /// <param name="petId">Unique pet id to search for.</param>
     /// <returns>PetFinder Pet Response object if pet is found, else returns null.</returns>
     /// <exception cref="HttpRequestException">Throws if method can not make a successful call with PetFinder.</exception>
-    public async Task<PetFinderPetResponse?> GetSinglePetByIdAsync(int petId)
+    public async Task<PetFinderPet?> GetSinglePetByIdAsync(int petId)
     {
-        await SetAuthenticationHeadersForPetFinder();
+        await SetAuthenticationRequestHeaders();
         using HttpResponseMessage response = await _httpClient.GetAsync($"{_options.PetSearchUrl}/{petId}");
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+            return null;
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<PetFinderPetResponse>();
+        PetFinderPetResponse petResponse = await response.Content.ReadFromJsonAsync<PetFinderPetResponse>()
+                                           ?? throw new HttpRequestException(
+                                               "Pet object could not be retrieved from Pet Finder API.");
+        return petResponse.Pet;
     }
 
     private string GetPathWithQueryString(PetsSearchParameters petsSearchParameters)
@@ -72,12 +78,12 @@ public class PetFinderClient : IPetFinderClient
             new("location", petsSearchParameters.Location),
             new("page", petsSearchParameters.Page.ToString()),
             new("distance", petsSearchParameters.Distance.ToString()),
-            new("sort", petsSearchParameters.Sort)
+            new("sort", petsSearchParameters.SortBy)
         ];
         return QueryHelpers.AddQueryString(_options.PetSearchUrl, query);
     }
 
-    private async Task SetAuthenticationHeadersForPetFinder()
+    private async Task SetAuthenticationRequestHeaders()
     {
         PetFinderToken token = await GetToken();
         _httpClient.DefaultRequestHeaders.Authorization =
@@ -87,7 +93,7 @@ public class PetFinderClient : IPetFinderClient
     private async Task<PetFinderToken> GetToken()
     {
         PetFinderToken? token = await _cacheTokenService.GetToken();
-        if (token is not null) return token;
+        if (token is not null && !_cacheTokenService.IsTokenExpired(token)) return token;
 
         token = await GetNewToken();
         await StoreToken(token);
@@ -96,10 +102,14 @@ public class PetFinderClient : IPetFinderClient
 
     private async Task<PetFinderToken> GetNewToken()
     {
+        // TODO: Use the expiration from PetFinderAPI instead of hardcoding it.
         DateTime expiresIn = DateTime.Now.AddMinutes(60);
-
         using HttpResponseMessage response =
-            await _httpClient.PostAsJsonAsync(_options.TokenUrl, _petFinderTokenRequest);
+            await _httpClient.PostAsJsonAsync(_options.TokenUrl, new PetFinderTokenRequest
+            {
+                ClientId = _credentials.ClientId,
+                ClientSecret = _credentials.ClientSecret
+            });
         response.EnsureSuccessStatusCode();
         var petFinderToken = await response.Content.ReadFromJsonAsync<TokenResponse>();
         if (petFinderToken is null)

@@ -8,6 +8,7 @@ namespace DotnetPetSearch.PetFinderHttpClient.Services;
 public interface ICacheTokenService
 {
     public Task<PetFinderToken?> GetToken();
+    public bool IsTokenExpired(PetFinderToken token);
     public void StoreTokenInCache(PetFinderToken token);
     public Task StoreTokenInDatabase(PetFinderToken token);
 }

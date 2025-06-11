@@ -9,5 +9,5 @@ namespace DotnetPetSearch.PetFinderHttpClient.Services;
 public interface IPetFinderClient
 {
     public Task<PetFinderPetListResponse> GetPetsAsync(PetsSearchParameters petsSearchParameters);
-    public Task<PetFinderPetResponse?> GetSinglePetByIdAsync(int petId);
+    public Task<PetFinderPet?> GetSinglePetByIdAsync(int petId);
 }
