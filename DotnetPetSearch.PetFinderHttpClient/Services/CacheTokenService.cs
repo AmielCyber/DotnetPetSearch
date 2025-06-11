@@ -31,13 +31,24 @@ public class CacheTokenService : ICacheTokenService
     public async Task<PetFinderToken?> GetToken()
     {
         PetFinderToken? token = GetTokenFromCache();
-        if (token is not null && !TokenIsExpired(token))
+        if (token is not null && !IsTokenExpired(token))
             return token;
 
         token = await GetTokenFromDatabase();
-        if (token is not null && !TokenIsExpired(token))
-            StoreTokenInCache(token);
+        if (token == null || IsTokenExpired(token)) return null;
+
+        StoreTokenInCache(token);
         return token;
+    }
+
+    /// <summary>
+    ///     Checks if a token is expired.
+    /// </summary>
+    /// <param name="token">The token to check expiration.</param>
+    /// <returns>True if token is expired.</returns>
+    public bool IsTokenExpired(PetFinderToken token)
+    {
+        return DateTime.Now >= token.ExpiresIn;
     }
 
     /// <summary>
@@ -59,15 +70,9 @@ public class CacheTokenService : ICacheTokenService
     public async Task StoreTokenInDatabase(PetFinderToken token)
     {
         await _context.Tokens.AddAsync(token);
-        await _context.SaveChangesAsync();
         bool saved = await _context.SaveChangesAsync() > 0;
         if (!saved)
             throw new DbUpdateException("Failed to store pet finder token!");
-    }
-
-    private bool TokenIsExpired(PetFinderToken token)
-    {
-        return DateTime.Now >= token.ExpiresIn;
     }
 
     private PetFinderToken? GetTokenFromCache()
