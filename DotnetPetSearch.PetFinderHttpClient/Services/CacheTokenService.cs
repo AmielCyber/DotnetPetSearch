@@ -28,13 +28,13 @@ public class CacheTokenService : ICacheTokenService
     ///     PetFinderToken containing the token and its expiration date. Returns null if there is no cached token or is
     ///     expired.
     /// </returns>
-    public async Task<PetFinderToken?> GetToken()
+    public async Task<PetFinderToken?> GetTokenAsync()
     {
         PetFinderToken? token = GetTokenFromCache();
         if (token is not null && !IsTokenExpired(token))
             return token;
 
-        token = await GetTokenFromDatabase();
+        token = await GetTokenFromDatabaseAsync();
         if (token == null || IsTokenExpired(token)) return null;
 
         StoreTokenInCache(token);
@@ -67,12 +67,10 @@ public class CacheTokenService : ICacheTokenService
     /// </summary>
     /// <param name="token">The token to be stored in the database.</param>
     /// <exception cref="DbUpdateException">Throws if failed to store in database.</exception>
-    public async Task StoreTokenInDatabase(PetFinderToken token)
+    public async Task StoreTokenInDatabaseAsync(PetFinderToken token)
     {
-        await _context.Tokens.AddAsync(token);
-        bool saved = await _context.SaveChangesAsync() > 0;
-        if (!saved)
-            throw new DbUpdateException("Failed to store pet finder token!");
+        _context.Tokens.Update(token);
+        await _context.SaveChangesAsync();
     }
 
     private PetFinderToken? GetTokenFromCache()
@@ -80,8 +78,8 @@ public class CacheTokenService : ICacheTokenService
         return _memoryCache.Get<PetFinderToken>(TokenCacheKey);
     }
 
-    private async Task<PetFinderToken?> GetTokenFromDatabase()
+    private async Task<PetFinderToken?> GetTokenFromDatabaseAsync()
     {
-        return await _context.Tokens.FirstOrDefaultAsync(t => t.Id == TokenId);
+        return await _context.Tokens.AsNoTracking().FirstOrDefaultAsync(t => t.Id == TokenId);
     }
 }
