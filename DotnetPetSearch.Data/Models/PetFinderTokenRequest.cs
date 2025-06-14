@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace DotnetPetSearch.PetFinderHttpClient.Models;
+namespace DotnetPetSearch.Data.Models;
 
 /// <summary>
 ///     Bearer Token Request Body for PetFinderApi.

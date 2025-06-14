@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace DotnetPetSearch.PetFinderHttpClient.Models;
+namespace DotnetPetSearch.Data.Models;
 
 /// <summary>
 ///     Token Response DTO for client. Tells client when that their token will expire.
@@ -11,7 +11,7 @@ public class TokenResponse
     [JsonPropertyName("token_type")]
     public required string TokenType { get; init; }
 
-    /// <summary>Expires in milliseconds when obtained from the back end.</summary>
+    /// <summary>Expires in seconds when obtained from the back end.</summary>
     [JsonPropertyName("expires_in")]
     public required int ExpiresIn { get; init; }
 

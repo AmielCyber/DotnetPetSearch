@@ -1,4 +1,4 @@
-namespace DotnetPetSearch.PetFinderHttpClient.Configurations;
+namespace DotnetPetSearch.Data.Configurations;
 
 /// <summary>
 ///     Pet Finder Credentials in order to use the Pet Finder API. Declared in Azure vault (production)
