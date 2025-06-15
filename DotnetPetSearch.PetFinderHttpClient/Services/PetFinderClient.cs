@@ -3,11 +3,9 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using DotnetPetSearch.Data.Entities;
 using DotnetPetSearch.Data.Services;
-using DotnetPetSearch.PetFinderHttpClient.Configurations;
 using DotnetPetSearch.PetFinderHttpClient.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Options;
 
 namespace DotnetPetSearch.PetFinderHttpClient.Services;
 
@@ -16,13 +14,11 @@ namespace DotnetPetSearch.PetFinderHttpClient.Services;
 /// </summary>
 public class PetFinderClient : IPetFinderClient
 {
-    private readonly PetFinderOptions _options;
     private readonly HttpClient _httpClient;
     private readonly ITokenService _tokenService;
 
-    public PetFinderClient(IOptions<PetFinderOptions> options, HttpClient httpClient, ITokenService tokenService)
+    public PetFinderClient(HttpClient httpClient, ITokenService tokenService)
     {
-        _options = options.Value;
         _httpClient = httpClient;
         _tokenService = tokenService;
     }
@@ -55,7 +51,7 @@ public class PetFinderClient : IPetFinderClient
     public async Task<PetFinderPet?> GetSinglePetByIdAsync(int petId)
     {
         await SetAuthenticationRequestHeadersAsync();
-        using HttpResponseMessage response = await _httpClient.GetAsync($"{_options.PetSearchUrl}/{petId}");
+        using HttpResponseMessage response = await _httpClient.GetAsync($"/{petId}");
 
         if (response.StatusCode == HttpStatusCode.NotFound)
             return null;
@@ -77,7 +73,7 @@ public class PetFinderClient : IPetFinderClient
             new("distance", petsSearchParameters.Distance.ToString()),
             new("sort", petsSearchParameters.SortBy)
         ];
-        return QueryHelpers.AddQueryString(_options.PetSearchUrl, query);
+        return QueryHelpers.AddQueryString(String.Empty, query);
     }
 
     private async Task SetAuthenticationRequestHeadersAsync()

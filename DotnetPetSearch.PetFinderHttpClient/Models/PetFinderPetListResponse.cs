@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace DotnetPetSearch.PetFinderHttpClient.Models;
 
 /// <summary>
@@ -6,9 +8,11 @@ namespace DotnetPetSearch.PetFinderHttpClient.Models;
 /// </summary>
 public class PetFinderPetListResponse
 {
+    [JsonPropertyName("animals")]
     /// <summary>The pet list.</summary>
     public List<PetFinderPet> Animals { get; init; }
 
     /// <summary>The pagination metadata from the PetFinder API JSON response.</summary>
+    [JsonPropertyName("pagination")]
     public PetFinderPageResponse Page { get; init; }
 }
