@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using DotnetPetSearch.Data.Entities;
 using DotnetPetSearch.Data.Services;
 using DotnetPetSearch.PetFinderHttpClient.Models;
@@ -36,8 +37,8 @@ public class PetFinderClient : IPetFinderClient
         response.EnsureSuccessStatusCode();
 
         var petList = await response.Content.ReadFromJsonAsync<PetFinderPetListResponse>();
-        if (petList is null)
-            throw new HttpRequestException("Pet list could not be retrieved from Pet Finder API.");
+        if (petList?.Animals == null || petList.Page == null)
+            throw new JsonException("Pet list could not be retrieved from Pet Finder API.");
 
         return petList;
     }
@@ -51,15 +52,16 @@ public class PetFinderClient : IPetFinderClient
     public async Task<PetFinderPet?> GetSinglePetByIdAsync(int petId)
     {
         await SetAuthenticationRequestHeadersAsync();
-        using HttpResponseMessage response = await _httpClient.GetAsync($"/{petId}");
+        using HttpResponseMessage response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/{petId}");
 
         if (response.StatusCode == HttpStatusCode.NotFound)
             return null;
         response.EnsureSuccessStatusCode();
 
-        PetFinderPetResponse petResponse = await response.Content.ReadFromJsonAsync<PetFinderPetResponse>()
-                                           ?? throw new HttpRequestException(
-                                               "Pet object could not be retrieved from Pet Finder API.");
+        var petResponse = await response.Content.ReadFromJsonAsync<PetFinderPetResponse>();
+        if (petResponse is null)
+            throw new JsonException(
+                "Pet object could not be retrieved from Pet Finder API.");
         return petResponse.Pet;
     }
 
@@ -73,7 +75,7 @@ public class PetFinderClient : IPetFinderClient
             new("distance", petsSearchParameters.Distance.ToString()),
             new("sort", petsSearchParameters.SortBy)
         ];
-        return QueryHelpers.AddQueryString(String.Empty, query);
+        return QueryHelpers.AddQueryString(string.Empty, query);
     }
 
     private async Task SetAuthenticationRequestHeadersAsync()
@@ -82,5 +84,4 @@ public class PetFinderClient : IPetFinderClient
         _httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token.AccessToken);
     }
-
 }
