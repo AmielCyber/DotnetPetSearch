@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 namespace DotnetPetSearch.Data.Entities;
 
 /// <summary>
-/// PetFinder Token entity to be stored and retrieve from our DB for reusability(approx: 60 min).
+///     PetFinder Token entity to be stored and retrieve from our DB for reusability(approx: 60 min).
 /// </summary>
 public class PetFinderToken
 {

@@ -18,5 +18,4 @@ public class PetFinderTokenRequest
     /// <summary>Default to "client_credentials"</summary>
     [JsonPropertyName("grant_type")]
     public string GrantType { get; init; } = "client_credentials";
-
 }

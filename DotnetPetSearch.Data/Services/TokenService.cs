@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Net.Http.Json;
 using DotnetPetSearch.Data.Configurations;
 using DotnetPetSearch.Data.Entities;
@@ -16,13 +15,13 @@ public class TokenService : ITokenService
 {
     private const int TokenId = 1;
     private const string TokenCacheKey = "PetFinderToken";
+    private readonly PetSearchContext _context;
     private readonly PetFinderCredentials _credentials;
-    private readonly IMemoryCache _memoryCache;
-    private readonly DbContext _context;
     private readonly HttpClient _httpClient;
+    private readonly IMemoryCache _memoryCache;
 
     public TokenService(IOptions<PetFinderCredentials> credentials,
-        IMemoryCache memoryCache, DbContext context, HttpClient httpClient)
+        IMemoryCache memoryCache, PetSearchContext context, HttpClient httpClient)
     {
         _credentials = credentials.Value;
         _memoryCache = memoryCache;
@@ -69,7 +68,7 @@ public class TokenService : ITokenService
 
     private async Task<PetFinderToken?> GetTokenFromDatabaseAsync()
     {
-        return await _context.Set<PetFinderToken>().AsNoTracking().FirstOrDefaultAsync(t => t.Id == TokenId);
+        return await _context.Tokens.AsNoTracking().FirstOrDefaultAsync(t => t.Id == TokenId);
     }
 
     private async Task<PetFinderToken> RequestNewTokenFromPetFinderAsync()
@@ -90,10 +89,10 @@ public class TokenService : ITokenService
         return new PetFinderToken
         {
             AccessToken = petFinderToken.AccessToken,
-            ExpiresIn = expireTime,
+            ExpiresIn = expireTime
         };
     }
-    
+
     private void StoreTokenInCache(PetFinderToken token)
     {
         MemoryCacheEntryOptions cacheEntryOptions =
@@ -103,9 +102,9 @@ public class TokenService : ITokenService
 
     private async Task StoreTokenInDatabaseAsync(PetFinderToken updatedToken)
     {
-        int rowsAffected = await _context.Set<PetFinderToken>()
+        int rowsAffected = await _context.Tokens
             .Where(t => t.Id == updatedToken.Id)
-            .ExecuteUpdateAsync(s => s.SetProperty( t=>t.AccessToken, updatedToken.AccessToken));
+            .ExecuteUpdateAsync(s => s.SetProperty(t => t.AccessToken, updatedToken.AccessToken));
         if (rowsAffected == 0)
         {
             await _context.Set<PetFinderToken>().AddAsync(updatedToken);
