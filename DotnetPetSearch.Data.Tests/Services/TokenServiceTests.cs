@@ -1,234 +1,226 @@
 using System.Net;
-using DotnetPetSearch.Data.Configurations;
 using DotnetPetSearch.Data.Entities;
 using DotnetPetSearch.Data.Services;
 using DotnetPetSearch.Data.Tests.Fixtures;
 using DotnetPetSearch.Data.Tests.TestData;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 using NSubstitute;
-using RichardSzalay.MockHttp;
+using static NSubstitute.Arg;
 
 namespace DotnetPetSearch.Data.Tests.Services;
 
 public class TokenServiceTests : IClassFixture<TokenServiceFixture>
 {
-    private readonly PetFinderToken _expiredPetFinderToken;
     private readonly TokenServiceFixture _tokenServiceFixture;
-    private readonly PetFinderToken _validPetFinderToken;
+    private readonly TokenServiceBuilder _tokenServiceBuilder;
 
     public TokenServiceTests(TokenServiceFixture tokenServiceFixture)
     {
         _tokenServiceFixture = tokenServiceFixture;
-        _validPetFinderToken = new PetFinderToken { AccessToken = string.Empty };
-        _expiredPetFinderToken = new PetFinderToken
-        {
-            ExpiresIn = DateTime.Now.AddSeconds(-1),
-            AccessToken = string.Empty
-        };
+        _tokenServiceBuilder = new TokenServiceBuilder(_tokenServiceFixture.BaseUri,
+            _tokenServiceFixture.ExpectedCredentialOptions, _tokenServiceFixture.DbContextOptions);
     }
 
     [Theory]
-    [ClassData(typeof(ValidPetFinderTokens))]
-    public async Task GetTokenAsync_ShouldReturnTokenFromCache_WhenTokenInCacheIsValid(PetFinderToken validToken)
+    [ClassData(typeof(FutureDateTime))]
+    public async Task GetTokenAsync_ShouldReturnTokenFromCache_WhenTokenInCacheIsValid(DateTime futureDateTime)
     {
         // Arrange
-        IOptions<PetFinderCredentials> credentials = _tokenServiceFixture.CreateCredentials();
-        IMemoryCache memoryCache = _tokenServiceFixture.CreatMemoryCache(validToken);
-        PetSearchContext petSearchContext = await _tokenServiceFixture.CreateDatabase(null);
-        MockHttpMessageHandler mockHttpMessage = _tokenServiceFixture.CreateServer(null, HttpStatusCode.Accepted);
-        HttpClient client = CreateHttpClient(mockHttpMessage);
-
-
-        var tokenService = new TokenService(credentials, memoryCache, petSearchContext, client);
+        PetFinderToken tokenInCache = new PetFinderToken()
+        {
+            ExpiresIn = futureDateTime, AccessToken = _tokenServiceFixture.TokenFromCache,
+        };
+        await _tokenServiceBuilder.CreateDatabase(null);
+        TokenService tokenService = _tokenServiceBuilder
+            .CreateCache(tokenInCache)
+            .CreateServer(HttpStatusCode.Accepted, null)
+            .Build();
 
         // Action
         PetFinderToken token = await tokenService.GetTokenAsync();
 
         // Assert
         Assert.Equal(token.AccessToken, _tokenServiceFixture.TokenFromCache);
-        memoryCache.ReceivedWithAnyArgs().TryGetValue(Arg.Any<string>(), out Arg.Any<object?>());
-        mockHttpMessage.VerifyNoOutstandingRequest();
+        _tokenServiceBuilder.MockMemoryCache.ReceivedWithAnyArgs().TryGetValue(Any<string>(), out Any<object?>());
+        _tokenServiceBuilder.MockHttp.VerifyNoOutstandingRequest();
     }
 
     [Theory]
-    [ClassData(typeof(ExpiredPetFinderTokens))]
+    [ClassData(typeof(PastDateTime))]
     public async Task GetTokenAsync_ShouldReturnTokenFromDataBase_WhenTokenInDbIsValid_AndTokenInCacheIsExpired(
-        PetFinderToken expiredToken)
+        DateTime pastDateTime)
     {
         // Arrange
-        IOptions<PetFinderCredentials> credentials = _tokenServiceFixture.CreateCredentials();
-        IMemoryCache memoryCache = _tokenServiceFixture.CreatMemoryCache(expiredToken);
-        PetSearchContext petSearchContext = await _tokenServiceFixture.CreateDatabase(_validPetFinderToken);
-        MockHttpMessageHandler mockHttpMessage = _tokenServiceFixture.CreateServer(null, HttpStatusCode.Accepted);
-        HttpClient client = CreateHttpClient(mockHttpMessage);
-        var tokenService = new TokenService(credentials, memoryCache, petSearchContext, client);
+        PetFinderToken tokenInCache = new PetFinderToken()
+        {
+            ExpiresIn = pastDateTime, AccessToken = _tokenServiceFixture.TokenFromCache,
+        };
+        PetFinderToken tokenInDataBase = new PetFinderToken() { AccessToken = _tokenServiceFixture.TokenFromDatabase };
+        
+        await _tokenServiceBuilder.CreateDatabase(tokenInDataBase);
+        TokenService tokenService = _tokenServiceBuilder
+            .CreateCache(tokenInCache)
+            .CreateServer(HttpStatusCode.Accepted, null)
+            .Build();
 
         // Action
         PetFinderToken token = await tokenService.GetTokenAsync();
 
         // Assert
         Assert.Equal(token.AccessToken, _tokenServiceFixture.TokenFromDatabase);
-        memoryCache.ReceivedWithAnyArgs().TryGetValue(Arg.Any<string>(), out Arg.Any<object?>());
-        mockHttpMessage.VerifyNoOutstandingRequest();
+        _tokenServiceBuilder.MockMemoryCache.ReceivedWithAnyArgs().TryGetValue(Any<string>(), out Any<object?>());
+        _tokenServiceBuilder.MockHttp.VerifyNoOutstandingRequest();
     }
 
     [Fact]
     public async Task GetTokenAsync_ShouldReturnTokenFromDataBase_WhenTokenInDbIsValid_AndTokenInCacheHasNoToken()
     {
         // Arrange
-        IOptions<PetFinderCredentials> credentials = _tokenServiceFixture.CreateCredentials();
-        IMemoryCache memoryCache = _tokenServiceFixture.CreatMemoryCache(null);
-        PetSearchContext petSearchContext = await _tokenServiceFixture.CreateDatabase(_validPetFinderToken);
-        MockHttpMessageHandler mockHttpMessage = _tokenServiceFixture.CreateServer(null, HttpStatusCode.Accepted);
-        HttpClient client = CreateHttpClient(mockHttpMessage);
-        var tokenService = new TokenService(credentials, memoryCache, petSearchContext, client);
+        PetFinderToken tokenInDataBase = new PetFinderToken() { AccessToken = _tokenServiceFixture.TokenFromDatabase };
+        await _tokenServiceBuilder.CreateDatabase(tokenInDataBase);
+        TokenService tokenService = _tokenServiceBuilder
+            .CreateCache(null)
+            .CreateServer(HttpStatusCode.Accepted, null)
+            .Build();
 
         // Action
         PetFinderToken token = await tokenService.GetTokenAsync();
 
         // Assert
         Assert.Equal(token.AccessToken, _tokenServiceFixture.TokenFromDatabase);
-        memoryCache.ReceivedWithAnyArgs().TryGetValue(Arg.Any<string>(), out Arg.Any<object?>());
-        mockHttpMessage.VerifyNoOutstandingRequest();
+        _tokenServiceBuilder.MockMemoryCache.ReceivedWithAnyArgs().TryGetValue(Any<string>(), out Any<object?>());
+        _tokenServiceBuilder.MockHttp.VerifyNoOutstandingRequest();
     }
 
     [Fact]
     public async Task GetTokenAsync_ShouldSaveTokenInCache_WhenGettingTokenFromDatabase()
     {
         // Arrange
-        IOptions<PetFinderCredentials> credentials = _tokenServiceFixture.CreateCredentials();
-        IMemoryCache memoryCache = _tokenServiceFixture.CreatMemoryCache(null);
-        PetSearchContext petSearchContext = await _tokenServiceFixture.CreateDatabase(_validPetFinderToken);
-        MockHttpMessageHandler mockHttpMessage = _tokenServiceFixture.CreateServer(null, HttpStatusCode.Accepted);
-        HttpClient client = CreateHttpClient(mockHttpMessage);
-        var tokenService = new TokenService(credentials, memoryCache, petSearchContext, client);
-
+        PetFinderToken tokenInDataBase = new PetFinderToken() { AccessToken = _tokenServiceFixture.TokenFromDatabase };
+        await _tokenServiceBuilder.CreateDatabase(tokenInDataBase);
+        TokenService tokenService = _tokenServiceBuilder
+            .CreateCache(null)
+            .CreateServer(HttpStatusCode.Accepted, null)
+            .Build();
+        
         // Action
         PetFinderToken result = await tokenService.GetTokenAsync();
 
         Assert.Equal(_tokenServiceFixture.TokenFromDatabase, result.AccessToken);
-        memoryCache.ReceivedWithAnyArgs().TryGetValue(Arg.Any<string>(), out Arg.Any<object?>());
-        memoryCache.ReceivedWithAnyArgs().Set(Arg.Any<string>(), result);
-        mockHttpMessage.VerifyNoOutstandingRequest();
+        _tokenServiceBuilder.MockMemoryCache.ReceivedWithAnyArgs().TryGetValue(Any<string>(), out Any<object?>());
+        _tokenServiceBuilder.MockMemoryCache.ReceivedWithAnyArgs().CreateEntry(Any<string>());
+        _tokenServiceBuilder.MockHttp.VerifyNoOutstandingRequest();
     }
 
     [Fact]
     public async Task GetTokenAsync_ShouldGetTokenFromServer_WhenTokenInDbAndInCacheDontHaveToken()
     {
         // Arrange
-        IOptions<PetFinderCredentials> credentials = _tokenServiceFixture.CreateCredentials();
-        IMemoryCache memoryCache = _tokenServiceFixture.CreatMemoryCache(null);
-        PetSearchContext petSearchContext = await _tokenServiceFixture.CreateDatabase(null);
-        MockHttpMessageHandler mockHttpMessage =
-            _tokenServiceFixture.CreateServer(_validPetFinderToken, HttpStatusCode.Accepted);
-        HttpClient client = CreateHttpClient(mockHttpMessage);
-        var tokenService = new TokenService(credentials, memoryCache, petSearchContext, client);
-
+        await _tokenServiceBuilder.CreateDatabase(null);
+        TokenService tokenService = _tokenServiceBuilder
+            .CreateCache(null)
+            .CreateServer(HttpStatusCode.Accepted, _tokenServiceFixture.TokenFromServer)
+            .Build();
+        
         // Action
         PetFinderToken result = await tokenService.GetTokenAsync();
 
         // Assert
         Assert.Equal(_tokenServiceFixture.TokenFromServer, result.AccessToken);
-        memoryCache.ReceivedWithAnyArgs().TryGetValue(Arg.Any<string>(), out Arg.Any<object?>());
-        mockHttpMessage.Expect(_tokenServiceFixture.BaseUri.ToString()).Respond(HttpStatusCode.Accepted);
+        _tokenServiceBuilder.MockMemoryCache.ReceivedWithAnyArgs().TryGetValue(Arg.Any<string>(), out Arg.Any<object?>());
+        _tokenServiceBuilder.MockHttp.VerifyNoOutstandingRequest();
     }
-
+    
     [Fact]
-    public async Task GetTokenAsync_ShouldGetTokenFromServer_WhenTokenInDbAndInCacheHaveExpiredToken()
+    public async Task GetTokenAsync_ShouldPost_WithCredentialBodyContent_WhenGettingTokenFromServer()
     {
         // Arrange
-        IOptions<PetFinderCredentials> credentials = _tokenServiceFixture.CreateCredentials();
-        IMemoryCache memoryCache = _tokenServiceFixture.CreatMemoryCache(_expiredPetFinderToken);
-        PetSearchContext petSearchContext = await _tokenServiceFixture.CreateDatabase(_expiredPetFinderToken);
-        MockHttpMessageHandler mockHttpMessage =
-            _tokenServiceFixture.CreateServer(_validPetFinderToken, HttpStatusCode.Accepted);
-        HttpClient client = CreateHttpClient(mockHttpMessage);
-        var tokenService = new TokenService(credentials, memoryCache, petSearchContext, client);
-
+        await _tokenServiceBuilder.CreateDatabase(null);
+        TokenService tokenService = _tokenServiceBuilder
+            .CreateCache(null)
+            .CreateServer(HttpStatusCode.Accepted, _tokenServiceFixture.TokenFromServer)
+            .ExpectPostRequestBody(_tokenServiceFixture.ExpectedTokenRequestBody)
+            .Build();
+        
         // Action
         PetFinderToken result = await tokenService.GetTokenAsync();
 
         // Assert
         Assert.Equal(_tokenServiceFixture.TokenFromServer, result.AccessToken);
-        memoryCache.ReceivedWithAnyArgs().TryGetValue(Arg.Any<string>(), out Arg.Any<object?>());
-        mockHttpMessage.Expect(_tokenServiceFixture.BaseUri.ToString()).Respond(HttpStatusCode.Accepted);
+        _tokenServiceBuilder.MockHttp.VerifyNoOutstandingRequest();
     }
 
-    [Fact]
-    public async Task GetTokenAsync_ShouldGetTokenFromServer_WhenTokenInDbAndInCacheDontHaveAToken()
+    [Theory]
+    [ClassData(typeof(PastDateTime))]
+    public async Task GetTokenAsync_ShouldGetTokenFromServer_WhenTokenInDbAndInCacheHaveExpiredToken(DateTime pastDateTime)
     {
         // Arrange
-        IOptions<PetFinderCredentials> credentials = _tokenServiceFixture.CreateCredentials();
-        IMemoryCache memoryCache = _tokenServiceFixture.CreatMemoryCache(null);
-        PetSearchContext petSearchContext = await _tokenServiceFixture.CreateDatabase(null);
-        MockHttpMessageHandler mockHttpMessage =
-            _tokenServiceFixture.CreateServer(_validPetFinderToken, HttpStatusCode.Accepted);
-        HttpClient client = CreateHttpClient(mockHttpMessage);
-        var tokenService = new TokenService(credentials, memoryCache, petSearchContext, client);
+        PetFinderToken tokenInCache = new PetFinderToken()
+        {
+            ExpiresIn = pastDateTime, AccessToken = _tokenServiceFixture.TokenFromCache,
+        };
+        PetFinderToken tokenInDataBase = new PetFinderToken()
+        {
+            ExpiresIn = pastDateTime,
+            AccessToken = _tokenServiceFixture.TokenFromDatabase
+        };
+        
+        await _tokenServiceBuilder.CreateDatabase(tokenInDataBase);
+        TokenService tokenService = _tokenServiceBuilder
+            .CreateCache(tokenInCache)
+            .CreateServer(HttpStatusCode.Accepted, _tokenServiceFixture.TokenFromServer)
+            .Build();
 
         // Action
         PetFinderToken result = await tokenService.GetTokenAsync();
 
         // Assert
         Assert.Equal(_tokenServiceFixture.TokenFromServer, result.AccessToken);
-        memoryCache.ReceivedWithAnyArgs().TryGetValue(Arg.Any<string>(), out Arg.Any<object?>());
-        mockHttpMessage.Expect(_tokenServiceFixture.BaseUri.ToString()).Respond(HttpStatusCode.Accepted);
+        _tokenServiceBuilder.MockMemoryCache.ReceivedWithAnyArgs().TryGetValue(Arg.Any<string>(), out Arg.Any<object?>());
+        _tokenServiceBuilder.MockHttp.VerifyNoOutstandingRequest();
     }
 
     [Fact]
     public async Task GetTokenAsync_ShouldSaveTokenInDatabase_WhenGettingTokenFromServer()
     {
         // Arrange
-        IOptions<PetFinderCredentials> credentials = _tokenServiceFixture.CreateCredentials();
-        IMemoryCache memoryCache = _tokenServiceFixture.CreatMemoryCache(null);
-        PetSearchContext petSearchContext = await _tokenServiceFixture.CreateDatabase(null);
-        MockHttpMessageHandler mockHttpMessage =
-            _tokenServiceFixture.CreateServer(_validPetFinderToken, HttpStatusCode.Accepted);
-        HttpClient client = CreateHttpClient(mockHttpMessage);
-        var tokenService = new TokenService(credentials, memoryCache, petSearchContext, client);
-
+        await _tokenServiceBuilder.CreateDatabase(null);
+        TokenService tokenService = _tokenServiceBuilder
+            .CreateCache(null)
+            .CreateServer(HttpStatusCode.Accepted, _tokenServiceFixture.TokenFromServer)
+            .Build();
+        
         // Action
         PetFinderToken result = await tokenService.GetTokenAsync();
 
-        petSearchContext.ChangeTracker.Clear();
-        PetFinderToken? dbToken = await petSearchContext.Set<PetFinderToken>()
-            .SingleOrDefaultAsync(t => t.Id == _validPetFinderToken.Id);
-
+        // Assert
+        PetFinderToken? dbToken = await _tokenServiceBuilder.Context.Set<PetFinderToken>()
+            .SingleOrDefaultAsync();
+        
         Assert.Equal(_tokenServiceFixture.TokenFromServer, result.AccessToken);
         Assert.Equal(result.AccessToken, dbToken?.AccessToken);
-        memoryCache.ReceivedWithAnyArgs().TryGetValue(Arg.Any<string>(), out Arg.Any<object?>());
-        memoryCache.ReceivedWithAnyArgs().Set(Arg.Any<string>(), result);
-        mockHttpMessage.Expect(_tokenServiceFixture.BaseUri.ToString()).Respond(HttpStatusCode.Accepted);
+        _tokenServiceBuilder.MockMemoryCache.ReceivedWithAnyArgs().TryGetValue(Arg.Any<string>(), out Arg.Any<object?>());
+        _tokenServiceBuilder.MockMemoryCache.ReceivedWithAnyArgs().CreateEntry(Any<string>());
+        _tokenServiceBuilder.MockHttp.VerifyNoOutstandingRequest();
     }
 
     [Fact]
     public async Task GetTokenAsync_ShouldSaveTokenInCache_WhenGettingTokenFromServer()
     {
         // Arrange
-        IOptions<PetFinderCredentials> credentials = _tokenServiceFixture.CreateCredentials();
-        IMemoryCache memoryCache = _tokenServiceFixture.CreatMemoryCache(null);
-        PetSearchContext petSearchContext = await _tokenServiceFixture.CreateDatabase(null);
-        MockHttpMessageHandler mockHttpMessage =
-            _tokenServiceFixture.CreateServer(_validPetFinderToken, HttpStatusCode.Accepted);
-        HttpClient client = CreateHttpClient(mockHttpMessage);
-        var tokenService = new TokenService(credentials, memoryCache, petSearchContext, client);
-
+        await _tokenServiceBuilder.CreateDatabase(null);
+        TokenService tokenService = _tokenServiceBuilder
+            .CreateCache(null)
+            .CreateServer(HttpStatusCode.Accepted, _tokenServiceFixture.TokenFromServer)
+            .Build();
+        
         // Action
         PetFinderToken result = await tokenService.GetTokenAsync();
 
         // Assert
         Assert.Equal(_tokenServiceFixture.TokenFromServer, result.AccessToken);
-        memoryCache.ReceivedWithAnyArgs().TryGetValue(Arg.Any<string>(), out Arg.Any<object?>());
-        memoryCache.ReceivedWithAnyArgs().Set(Arg.Any<string>(), result);
-        mockHttpMessage.VerifyNoOutstandingRequest();
-    }
-
-    private HttpClient CreateHttpClient(MockHttpMessageHandler mockHttpMessageHandler)
-    {
-        var httpClient = mockHttpMessageHandler.ToHttpClient();
-        httpClient.BaseAddress = _tokenServiceFixture.BaseUri;
-        return httpClient;
+        _tokenServiceBuilder.MockMemoryCache.ReceivedWithAnyArgs().TryGetValue(Arg.Any<string>(), out Arg.Any<object?>());
+        _tokenServiceBuilder.MockMemoryCache.ReceivedWithAnyArgs().CreateEntry(Any<string>());
+        _tokenServiceBuilder.MockHttp.VerifyNoOutstandingRequest();
     }
 }
