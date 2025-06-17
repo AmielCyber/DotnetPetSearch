@@ -1,61 +1,56 @@
-using System.Collections.Immutable;
+using DotnetPetSearch.API.Configurations;
+using DotnetPetSearch.API.Extensions;
+using DotnetPetSearch.API.Middleware;
 using DotnetPetSearch.Data;
-using DotnetPetSearch.MapBoxHttpClient;
-using DotnetPetSearch.PetFinderHttpClient.Configurations;
-using DotnetPetSearch.PetFinderHttpClient.Services;
 using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-// Configuration (Options Pattern)
-builder.Services.Configure<PetFinderCredentials>(builder.Configuration.GetRequiredSection("PetFinderCredentials"));
-builder.Services.Configure<PetFinderOptions>(builder.Configuration.GetRequiredSection("PetFinderOptions"));
-builder.Services.Configure<MapBoxConfiguration>(mapBoxConfig =>
-{
-    var accessToken = builder.Configuration.GetValue<string>("MapBoxToken")!;
-    var options = builder.Configuration.GetRequiredSection("MapBox:Options").Get<Dictionary<string, string?>>()!;
-    options.Add("access_token", accessToken);
-    mapBoxConfig.Options = options.ToImmutableList();
-});
+builder.Services.AddProblemDetails();
 builder.Services.AddMemoryCache();
-
+var clients = builder.Configuration.GetRequiredSection(nameof(ClientUsers)).Get<Dictionary<string, string>>()!;
+builder.Services.AddCors(options =>
+{
+    foreach (KeyValuePair<string, string> client in clients)
+        options.AddPolicy(client.Key, policy => policy.WithOrigins(client.Value)
+            .WithExposedHeaders("X-Pagination")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials()
+        );
+});
+builder.Services.AddHsts(options =>
+{
+    options.Preload = true;
+    options.IncludeSubDomains = true;
+    options.MaxAge = TimeSpan.FromDays(30);
+});
 builder.Services.AddDbContext<PetSearchContext>(options =>
 {
     string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? throw new InvalidOperationException("Could not find connection string!");
+                              ?? throw new InvalidOperationException("Could not find connection string for database!");
     options.UseMySQL(connectionString);
 });
-builder.Services.AddHttpClient<IMapBoxClient, MapBoxClient>(client =>
-{
-    var mapBoxUri = builder.Configuration.GetRequiredSection("MapBox:Uri").Get<string>()!;
-    client.BaseAddress = new Uri(mapBoxUri);
-});
-
-builder.Services.AddScoped<ICacheTokenService, CacheTokenService>();
-builder.Services.AddHttpClient<IPetFinderClient, PetFinderClient>(client =>
-{
-    var petFinderUri = builder.Configuration.GetRequiredSection("PetFinderOptions:BaseUri").Get<string>()!;
-    client.BaseAddress = new Uri(petFinderUri);
-});
+// Adding Services from Extensions/MyServiceCollectionExtensions
+builder.Services.AddPetFinderServicesCollection(builder.Configuration);
+builder.Services.AddMapBoxServicesCollection(builder.Configuration);
+// builder.Services.AddSwaggerGenWithOptions(builder.Configuration); 
+// End of Service Registration
 
 WebApplication app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+// Set middleware pipeline
+if (app.Environment.IsProduction()) app.UseHsts();
 
-app.UseHttpsRedirection();
-
+app.UseMiddleware<ExceptionMiddleware>();
+app.UseStatusCodePages();
+app.UseSwagger();
+app.UseSwaggerUI();
+foreach (string clientNamePolicy in clients.Keys) app.UseCors(clientNamePolicy);
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
