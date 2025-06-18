@@ -11,10 +11,10 @@ namespace DotnetPetSearch.API.Extensions;
 
 public static class MyServicesCollectionExtensions
 {
-
-    public static IServiceCollection AddMapBoxServicesCollection(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddMapBoxServicesCollection(this IServiceCollection services,
+        IConfiguration configuration)
     {
-        MapBoxSettings mapBoxSettings = configuration.GetRequiredSection(nameof(MapBoxSettings)).Get<MapBoxSettings>()!;
+        var mapBoxSettings = configuration.GetRequiredSection(nameof(MapBoxSettings)).Get<MapBoxSettings>()!;
         services.Configure<MapBoxConfiguration>(mapBoxConfig =>
         {
             var accessToken = configuration.GetValue<string>("MapBoxToken")!;
@@ -29,11 +29,12 @@ public static class MyServicesCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddPetFinderServicesCollection(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddPetFinderServicesCollection(this IServiceCollection services,
+        IConfiguration configuration)
     {
-        PetFinderSettings petFinderSettings = configuration.GetRequiredSection(nameof(PetFinderSettings)).Get<PetFinderSettings>()!;
+        var petFinderSettings = configuration.GetRequiredSection(nameof(PetFinderSettings)).Get<PetFinderSettings>()!;
         services.Configure<PetFinderCredentials>(configuration.GetRequiredSection(nameof(PetFinderCredentials)));
-        
+
         services.AddHttpClient<ITokenService, TokenService>(client =>
         {
             client.BaseAddress = new Uri($"{petFinderSettings.BaseUri}{petFinderSettings.TokenUrl}");
@@ -45,27 +46,29 @@ public static class MyServicesCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddSwaggerGenWithOptions(this IServiceCollection services, IConfiguration configuration
-        )
+    public static IServiceCollection AddSwaggerGenWithOptions(this IServiceCollection services,
+        IConfiguration configuration
+    )
     {
-        PetSearchOpenApiInfo openApiInfo = configuration.GetRequiredSection(nameof(PetSearchOpenApiInfo)).Get<PetSearchOpenApiInfo>()!;
+        var openApiSpecification = configuration.GetRequiredSection(nameof(PetSearchOpenApiSpecification))
+            .Get<PetSearchOpenApiSpecification>()!;
         services.AddSwaggerGen(options =>
         {
             options.SwaggerDoc("v1", new OpenApiInfo()
             {
-                Title = openApiInfo.Title,
-                Description = openApiInfo.Description,
-                Version = openApiInfo.Version,
+                Title = openApiSpecification.Title,
+                Description = openApiSpecification.Description,
+                Version = openApiSpecification.Version,
                 Contact = new OpenApiContact
                 {
-                    Name = openApiInfo.ClientAppName,
-                    Url =new Uri(openApiInfo.ClientAppLink)
-                },
+                    Name = openApiSpecification.ClientAppName,
+                    Url = new Uri(openApiSpecification.ClientAppLink)
+                }
             });
-            var file = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, file));
+            var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            string xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
+            options.IncludeXmlComments(xmlCommentsFullPath);
         });
         return services;
     }
-
 }

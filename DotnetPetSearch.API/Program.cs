@@ -6,9 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(configure => { configure.ReturnHttpNotAcceptable = true; });
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 builder.Services.AddProblemDetails();
 builder.Services.AddMemoryCache();
 var clients = builder.Configuration.GetRequiredSection(nameof(ClientUsers)).Get<Dictionary<string, string>>()!;
@@ -37,7 +36,7 @@ builder.Services.AddDbContext<PetSearchContext>(options =>
 // Adding Services from Extensions/MyServiceCollectionExtensions
 builder.Services.AddPetFinderServicesCollection(builder.Configuration);
 builder.Services.AddMapBoxServicesCollection(builder.Configuration);
-// builder.Services.AddSwaggerGenWithOptions(builder.Configuration); 
+builder.Services.AddSwaggerGenWithOptions(builder.Configuration);
 // End of Service Registration
 
 WebApplication app = builder.Build();

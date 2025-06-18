@@ -1,13 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
-    <PropertyGroup>
+    <PropertyGroup Label=".NET Settings">
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>4bdfe9de-ce9d-4644-a70c-d7cf31af9ad3</UserSecretsId>
     </PropertyGroup>
 
-    <ItemGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <DocumentationFile>bin\Release\net8.0\DotnetPetSearch.API.xml</DocumentationFile>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <DocumentationFile>bin\Debug\net8.0\DotnetPetSearch.API.xml</DocumentationFile>
+    </PropertyGroup>
+    <!-- Ignore warnings for non controller methods without xml for OpenApi -->
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>$(NoWarn);1591</NoWarn>
+    </PropertyGroup>
+
+
+    <ItemGroup Label="Nuget Dependencies">
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.16">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -15,7 +27,7 @@
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
 
-    <ItemGroup>
+    <ItemGroup Label="Library References">
         <ProjectReference Include="..\DotnetPetSearch.Data\DotnetPetSearch.Data.csproj"/>
         <ProjectReference Include="..\DotnetPetSearch.MapBoxHttpClient\DotnetPetSearch.MapBoxHttpClient.csproj"/>
         <ProjectReference Include="..\DotnetPetSearch.PetFinderHttpClient\DotnetPetSearch.PetFinderHttpClient.csproj"/>
