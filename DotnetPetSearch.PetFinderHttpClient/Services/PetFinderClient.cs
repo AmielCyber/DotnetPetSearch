@@ -27,13 +27,13 @@ public class PetFinderClient : IPetFinderClient
     /// <summary>
     ///     Gets a list of available pets along with its pagination data based on the passed query parameters.
     /// </summary>
-    /// <param name="petsSearchParameters">Query parameters for the pet search.</param>
+    /// <param name="petSearchParameters">Query parameters for the pet search.</param>
     /// <returns>PetFinder Pet List response which contains a list of pets and pagination metadata.</returns>
     /// <exception cref="HttpRequestException">Throws if method can not make a successful call with PetFinder.</exception>
-    public async Task<PetFinderPetListResponse> GetPetsAsync(PetsSearchParameters petsSearchParameters)
+    public async Task<PetFinderPetListResponse> GetPetsAsync(IPetSearchParameters petSearchParameters)
     {
         await SetAuthenticationRequestHeadersAsync();
-        using HttpResponseMessage response = await _httpClient.GetAsync(GetPathWithQueryString(petsSearchParameters));
+        using HttpResponseMessage response = await _httpClient.GetAsync(GetPathWithQueryString(petSearchParameters));
         response.EnsureSuccessStatusCode();
 
         var petList = await response.Content.ReadFromJsonAsync<PetFinderPetListResponse>();
@@ -65,15 +65,15 @@ public class PetFinderClient : IPetFinderClient
         return petResponse.Pet;
     }
 
-    private string GetPathWithQueryString(PetsSearchParameters petsSearchParameters)
+    private string GetPathWithQueryString(IPetSearchParameters petSearchParameters)
     {
         List<KeyValuePair<string, string?>> query =
         [
-            new("type", petsSearchParameters.Type),
-            new("location", petsSearchParameters.Location),
-            new("page", petsSearchParameters.Page.ToString()),
-            new("distance", petsSearchParameters.Distance.ToString()),
-            new("sort", petsSearchParameters.SortBy)
+            new("type", petSearchParameters.Type),
+            new("location", petSearchParameters.Location),
+            new("page", petSearchParameters.Page.ToString()),
+            new("distance", petSearchParameters.Distance.ToString()),
+            new("sort", petSearchParameters.Sort)
         ];
         return QueryHelpers.AddQueryString(string.Empty, query);
     }

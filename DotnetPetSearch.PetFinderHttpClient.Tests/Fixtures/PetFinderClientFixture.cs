@@ -3,6 +3,14 @@ using DotnetPetSearch.PetFinderHttpClient.Models;
 
 namespace DotnetPetSearch.PetFinderHttpClient.Tests.Fixtures;
 
+public class PetSearchParamsImpl : IPetSearchParameters
+{
+    public string Type { get; init; } = "Type";
+    public string Location { get; init; } = "Location";
+    public int Page { get; init; } = 1;
+    public int Distance { get; init; } = 25;
+    public string Sort { get; init; } = "Sort";
+}
 public class PetFinderClientFixture
 {
     public Uri BaseUri { get; } = new("http://petfinder.com/v2/animals");
@@ -11,9 +19,10 @@ public class PetFinderClientFixture
     public PetFinderPet ExpectedPet { get; }
     public PetFinderPet? ExpectedEmptyPet { get; }
 
-    public PetsSearchParameters ExpectedParameters { get; }
-    public PetsSearchParameters ExpectedParametersWithDefaults { get; }
+    public IPetSearchParameters ExpectedParameters { get; }
+    public IPetSearchParameters ExpectedParametersWithDefaults { get; }
     public PetFinderToken ExpectedToken { get; }
+
 
     public PetFinderClientFixture()
     {
@@ -21,15 +30,8 @@ public class PetFinderClientFixture
         ExpectedPetResponse = new PetFinderPetResponse() { Pet = GetPet() };
         ExpectedPet = GetPet();
         ExpectedEmptyPet = null;
-        ExpectedParameters = new PetsSearchParameters
-        {
-            Type = "Type",
-            Location = "Location",
-            Page = 1,
-            Distance = 50,
-            SortBy = "recent"
-        };
-        ExpectedParametersWithDefaults = new PetsSearchParameters
+        ExpectedParameters = new PetSearchParamsImpl();
+        ExpectedParametersWithDefaults = new PetSearchParamsImpl()
         {
             Type = "type2",
             Location = "location2"

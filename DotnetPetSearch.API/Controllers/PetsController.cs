@@ -29,7 +29,7 @@ public class PetsController : ControllerBase
     /// <returns>A pet list from the given passed location and other parameters.</returns>
     [HttpGet]
     [ResponseCache(Location = ResponseCacheLocation.Client, Duration = 600)]
-    public async Task<ActionResult<List<PetDto>>> GetPetList([FromQuery] PetsSearchParameters parameters)
+    public async Task<ActionResult<List<PetDto>>> GetPetList([FromQuery] PetSearchParameters parameters)
     {
         PetFinderPetListResponse petListResponse = await _petFinderClient.GetPetsAsync(parameters);
         Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(petListResponse.ToPaginationMetaData()));

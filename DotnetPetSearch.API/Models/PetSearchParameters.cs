@@ -1,12 +1,14 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using DotnetPetSearch.PetFinderHttpClient.Models;
+using Microsoft.AspNetCore.Mvc;
 
-namespace DotnetPetSearch.PetFinderHttpClient.Models;
+namespace DotnetPetSearch.API.Models;
 
 /// <summary>
 ///     Pet search query parameters.
 /// </summary>
-public class PetsSearchParameters
+public class PetSearchParameters: IPetSearchParameters
 {
     /// <summary>
     ///     Search for pet type
@@ -21,6 +23,7 @@ public class PetsSearchParameters
     /// </summary>
     [Required]
     [RegularExpression(@"^\d{5}$", ErrorMessage = "Zip Code must be 5 digits.")]
+    [FromQuery(Name = "Zipcode")]
     public required string Location { get; init; }
 
     /// <summary>
@@ -44,5 +47,6 @@ public class PetsSearchParameters
     [RegularExpression(@"^-?(recent|distance)$",
         ErrorMessage = "Only location values: 'recent' and 'distance' with optional '-' prefix are accepted")]
     [DefaultValue("distance")]
-    public string SortBy { get; init; } = "distance";
+    [FromQuery(Name = "SortBy")]
+    public string Sort { get; init; } = "distance";
 }

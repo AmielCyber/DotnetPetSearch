@@ -43,7 +43,7 @@ public class PetFinderClientTests : IClassFixture<PetFinderClientFixture>
             { "location", _fixture.ExpectedParameters.Location },
             { "page", _fixture.ExpectedParameters.Page.ToString() },
             { "distance", _fixture.ExpectedParameters.Distance.ToString() },
-            { "sort", _fixture.ExpectedParameters.SortBy }
+            { "sort", _fixture.ExpectedParameters.Sort}
         };
         // Arrange
         PetFinderClient petFinderClient = _clientBuilder
@@ -68,7 +68,7 @@ public class PetFinderClientTests : IClassFixture<PetFinderClientFixture>
             { "location", _fixture.ExpectedParametersWithDefaults.Location },
             { "page", _fixture.ExpectedParametersWithDefaults.Page.ToString() },
             { "distance", _fixture.ExpectedParametersWithDefaults.Distance.ToString() },
-            { "sort", _fixture.ExpectedParametersWithDefaults.SortBy }
+            { "sort", _fixture.ExpectedParametersWithDefaults.Sort }
         };
         // Arrange
         PetFinderClient petFinderClient = _clientBuilder
