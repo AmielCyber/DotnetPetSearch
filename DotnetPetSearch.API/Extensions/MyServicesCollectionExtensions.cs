@@ -35,7 +35,9 @@ public static class MyServicesCollectionExtensions
         var petFinderSettings = configuration.GetRequiredSection(nameof(PetFinderSettings)).Get<PetFinderSettings>()!;
         services.Configure<PetFinderCredentials>(configuration.GetRequiredSection(nameof(PetFinderCredentials)));
 
-        services.AddHttpClient<ITokenService, TokenService>(client =>
+        services.AddSingleton<ITokenCacheService, TokenCacheService>();
+        services.AddScoped<ITokenRepository, TokenRepository>();
+        services.AddHttpClient<IPetFinderTokenClient, PetFinderTokenClient>(client =>
         {
             client.BaseAddress = new Uri($"{petFinderSettings.BaseUri}{petFinderSettings.TokenUrl}");
         });
