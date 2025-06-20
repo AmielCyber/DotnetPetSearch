@@ -33,6 +33,18 @@ public class PetFinderClientTests : IClassFixture<PetFinderClientFixture>
         // Assert all expected http requests and response have been received.
         _clientBuilder.MockHttp.VerifyNoOutstandingExpectation();
     }
+    
+    [Fact]
+    public async Task GetPetsAsync_ShouldThrowException_WhenCacheDoesNotContainToken()
+    {
+        // Arrange
+        PetFinderClient petFinderClient = _clientBuilder
+            .SetEmptyTokenInCache()
+            .Build();
+
+        // Action and Action
+        await Assert.ThrowsAsync<NullReferenceException>(async () => await petFinderClient.GetPetsAsync(_fixture.ExpectedParameters));
+    }
 
     [Fact]
     public async Task GetPetsAsync_ShouldPassQueryParametersToRequest()
@@ -43,7 +55,7 @@ public class PetFinderClientTests : IClassFixture<PetFinderClientFixture>
             { "location", _fixture.ExpectedParameters.Location },
             { "page", _fixture.ExpectedParameters.Page.ToString() },
             { "distance", _fixture.ExpectedParameters.Distance.ToString() },
-            { "sort", _fixture.ExpectedParameters.Sort}
+            { "sort", _fixture.ExpectedParameters.Sort }
         };
         // Arrange
         PetFinderClient petFinderClient = _clientBuilder
@@ -150,6 +162,18 @@ public class PetFinderClientTests : IClassFixture<PetFinderClientFixture>
 
         // Assert all expected http requests and response have been received.
         _clientBuilder.MockHttp.VerifyNoOutstandingExpectation();
+    }
+    
+    [Fact]
+    public async Task GetSinglePetBuIdAsync_ShouldThrowException_WhenCacheDoesNotContainToken()
+    {
+        // Arrange
+        PetFinderClient petFinderClient = _clientBuilder
+            .SetEmptyTokenInCache()
+            .Build();
+
+        // Action and Action
+        await Assert.ThrowsAsync<NullReferenceException>(async () => await petFinderClient.GetPetsAsync(_fixture.ExpectedParameters));
     }
 
     [Fact]

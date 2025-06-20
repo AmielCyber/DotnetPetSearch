@@ -8,7 +8,7 @@ namespace DotnetPetSearch.API.Models;
 /// <summary>
 ///     Pet search query parameters.
 /// </summary>
-public class PetSearchParameters: IPetSearchParameters
+public class PetSearchParameters : IPetSearchParameters
 {
     /// <summary>
     ///     Search for pet type

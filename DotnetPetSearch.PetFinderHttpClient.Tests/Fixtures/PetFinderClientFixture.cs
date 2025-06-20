@@ -11,6 +11,7 @@ public class PetSearchParamsImpl : IPetSearchParameters
     public int Distance { get; init; } = 25;
     public string Sort { get; init; } = "Sort";
 }
+
 public class PetFinderClientFixture
 {
     public Uri BaseUri { get; } = new("http://petfinder.com/v2/animals");
@@ -38,7 +39,8 @@ public class PetFinderClientFixture
         };
         ExpectedToken = new PetFinderToken()
         {
-            AccessToken = "AccessToken"
+            AccessToken = "AccessToken",
+            ExpiresIn = DateTime.Now.AddHours(1)
         };
     }
 

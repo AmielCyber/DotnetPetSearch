@@ -3,7 +3,6 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using DotnetPetSearch.Data.Entities;
-using DotnetPetSearch.Data.Services;
 using DotnetPetSearch.PetFinderHttpClient.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.WebUtilities;
@@ -16,12 +15,12 @@ namespace DotnetPetSearch.PetFinderHttpClient.Services;
 public class PetFinderClient : IPetFinderClient
 {
     private readonly HttpClient _httpClient;
-    private readonly ITokenService _tokenService;
+    private readonly ITokenCacheService _tokenCacheService;
 
-    public PetFinderClient(HttpClient httpClient, ITokenService tokenService)
+    public PetFinderClient(HttpClient httpClient, ITokenCacheService tokenCacheService)
     {
         _httpClient = httpClient;
-        _tokenService = tokenService;
+        _tokenCacheService = tokenCacheService;
     }
 
     /// <summary>
@@ -32,7 +31,7 @@ public class PetFinderClient : IPetFinderClient
     /// <exception cref="HttpRequestException">Throws if method can not make a successful call with PetFinder.</exception>
     public async Task<PetFinderPetListResponse> GetPetsAsync(IPetSearchParameters petSearchParameters)
     {
-        await SetAuthenticationRequestHeadersAsync();
+        SetAuthenticationRequestHeadersAsync();
         using HttpResponseMessage response = await _httpClient.GetAsync(GetPathWithQueryString(petSearchParameters));
         response.EnsureSuccessStatusCode();
 
@@ -51,7 +50,7 @@ public class PetFinderClient : IPetFinderClient
     /// <exception cref="HttpRequestException">Throws if method can not make a successful call with PetFinder.</exception>
     public async Task<PetFinderPet?> GetSinglePetByIdAsync(int petId)
     {
-        await SetAuthenticationRequestHeadersAsync();
+        SetAuthenticationRequestHeadersAsync();
         using HttpResponseMessage response = await _httpClient.GetAsync($"{_httpClient.BaseAddress}/{petId}");
 
         if (response.StatusCode == HttpStatusCode.NotFound)
@@ -78,9 +77,12 @@ public class PetFinderClient : IPetFinderClient
         return QueryHelpers.AddQueryString(string.Empty, query);
     }
 
-    private async Task SetAuthenticationRequestHeadersAsync()
+    private void SetAuthenticationRequestHeadersAsync()
     {
-        PetFinderToken token = await _tokenService.GetTokenAsync();
+        PetFinderToken? token = _tokenCacheService.TryGetToken();
+        if (token is null)
+            throw new NullReferenceException("Token was not found in cache.");
+
         _httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token.AccessToken);
     }
