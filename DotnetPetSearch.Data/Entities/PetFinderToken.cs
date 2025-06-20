@@ -8,6 +8,7 @@ namespace DotnetPetSearch.Data.Entities;
 public class PetFinderToken
 {
     public int Id { get; init; } = 1;
-    [Required] public required string AccessToken { get; init; }
-    public DateTime ExpiresIn { get; init; } = DateTime.Now.AddMinutes(55);
+    [Required] public required string AccessToken { get; set; }
+
+    [Required] public required DateTime ExpiresIn { get; set; }
 }

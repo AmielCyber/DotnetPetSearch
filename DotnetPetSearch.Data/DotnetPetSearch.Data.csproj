@@ -7,8 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- Microsoft.EntityFrameworkCore.Relational needed for sqlite tests -->
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.6" />
         <PackageReference Include="MySql.EntityFrameworkCore" Version="9.0.3"/>
     </ItemGroup>
 
