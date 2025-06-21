@@ -4,5 +4,5 @@ namespace DotnetPetSearch.PetFinderHttpClient.Services;
 
 public interface IPetFinderTokenClient
 {
-    public Task<PetFinderToken?> TryGetTokenFromApiAsync(CancellationToken cancellationToken);
+    public Task<PetFinderToken> TryGetTokenFromApiAsync(CancellationToken cancellationToken);
 }

@@ -18,7 +18,7 @@ public class PetFinderTokenClient : IPetFinderTokenClient
         _credentials = credentials.Value;
     }
 
-    public async Task<PetFinderToken?> TryGetTokenFromApiAsync(CancellationToken cancellationToken)
+    public async Task<PetFinderToken> TryGetTokenFromApiAsync(CancellationToken cancellationToken)
     {
         DateTime startTime = DateTime.Now;
         using HttpResponseMessage response =

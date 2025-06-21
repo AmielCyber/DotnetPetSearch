@@ -66,7 +66,11 @@ public class PetFinderTokenClientTests
         _mockHttp
             .When(_baseUri.ToString())
             .Respond(HttpStatusCode.Accepted, JsonContent.Create(_expectedTokenResponse))
-            .WithJsonContent(_credentials.Value);
+            .WithJsonContent(new PetFinderTokenRequest
+            {
+                ClientId = _credentials.Value.ClientId,
+                ClientSecret = _credentials.Value.ClientSecret
+            });
         IPetFinderTokenClient petFinderTokenClient = new PetFinderTokenClient(CreateHttpClient(), _credentials);
 
         // Action
