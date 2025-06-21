@@ -1,6 +1,7 @@
 using DotnetPetSearch.API.Configurations;
 using DotnetPetSearch.API.Extensions;
 using DotnetPetSearch.API.Middleware;
+using DotnetPetSearch.API.Services;
 using DotnetPetSearch.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,6 +34,7 @@ builder.Services.AddDbContext<PetSearchContext>(options =>
                               ?? throw new InvalidOperationException("Could not find connection string for database!");
     options.UseMySQL(connectionString);
 });
+builder.Services.AddHostedService<TokenRefreshService>();
 // Adding Services from Extensions/MyServiceCollectionExtensions
 builder.Services.AddPetFinderServicesCollection(builder.Configuration);
 builder.Services.AddMapBoxServicesCollection(builder.Configuration);
