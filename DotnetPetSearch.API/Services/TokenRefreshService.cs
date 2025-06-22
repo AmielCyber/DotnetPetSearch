@@ -82,7 +82,7 @@ public class TokenRefreshService : BackgroundService
         if (token == null) return token;
 
         _tokenCacheService.StoreToken(token);
-        _ = tokenRepository.SaveTokenAsync(token);
+        await tokenRepository.SaveTokenAsync(token);
         return token;
     }
 
