@@ -1,6 +1,5 @@
 using DotnetPetSearch.Data.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace DotnetPetSearch.Data.Services;
 
@@ -15,12 +14,12 @@ public class TokenRepository : ITokenRepository
 
     public async Task<PetFinderToken?> GetSingleTokenAsync()
     {
-        return await _context.Tokens.AsNoTracking().SingleOrDefaultAsync();
+        return await _context.Tokens.FirstOrDefaultAsync();
     }
 
     public async Task SaveTokenAsync(PetFinderToken token)
     {
-        PetFinderToken? tokenEntity = await _context.Tokens.SingleOrDefaultAsync(x => x.Id == token.Id);
+        PetFinderToken? tokenEntity = await _context.Tokens.FirstOrDefaultAsync();
         if (tokenEntity == null)
         {
             await _context.Tokens.AddAsync(token);
