@@ -34,7 +34,7 @@ builder.Services.AddDbContext<PetSearchContext>(options =>
                               ?? throw new ArgumentException("No connection string found!");
     options.UseMySQL(connectionString);
 });
-// builder.Services.AddHostedService<TokenRefreshService>();
+builder.Services.AddHostedService<TokenRefreshService>();
 // Adding Services from Extensions/MyServiceCollectionExtensions
 builder.Services.AddPetFinderServicesCollection(builder.Configuration);
 builder.Services.AddMapBoxServicesCollection(builder.Configuration);
@@ -42,6 +42,12 @@ builder.Services.AddSwaggerGenWithOptions(builder.Configuration);
 // End of Service Registration
 
 WebApplication app = builder.Build();
+
+{
+    using var scope = app.Services.CreateScope();
+    using var context = scope.ServiceProvider.GetRequiredService<PetSearchContext>();
+    context.Database.EnsureCreated();
+}
 
 // Set middleware pipeline
 if (app.Environment.IsProduction()) app.UseHsts();
