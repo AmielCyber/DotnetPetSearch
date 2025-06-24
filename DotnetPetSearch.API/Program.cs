@@ -34,7 +34,7 @@ builder.Services.AddDbContext<PetSearchContext>(options =>
                               ?? throw new ArgumentException("No connection string found!");
     options.UseMySQL(connectionString);
 });
-builder.Services.AddHostedService<TokenRefreshService>();
+// builder.Services.AddHostedService<TokenRefreshService>();
 // Adding Services from Extensions/MyServiceCollectionExtensions
 builder.Services.AddPetFinderServicesCollection(builder.Configuration);
 builder.Services.AddMapBoxServicesCollection(builder.Configuration);
