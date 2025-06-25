@@ -60,7 +60,11 @@ app.UseSwagger(c =>
 {
     c.OpenApiVersion = OpenApiSpecVersion.OpenApi2_0;
 });
-app.UseSwaggerUI();
+app.UseSwaggerUI(setupAction =>
+{
+    setupAction.SwaggerEndpoint("swagger/LibraryOpenAPISpecification/swagger.json", "Library API");
+    setupAction.RoutePrefix = string.Empty;
+});
 foreach (string clientNamePolicy in clients.Keys) app.UseCors(clientNamePolicy);
 app.UseAuthorization();
 app.MapControllers();
