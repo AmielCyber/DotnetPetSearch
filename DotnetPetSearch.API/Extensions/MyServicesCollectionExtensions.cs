@@ -18,9 +18,9 @@ public static class MyServicesCollectionExtensions
         services.Configure<MapBoxConfiguration>(mapBoxConfig =>
         {
             var accessToken = configuration.GetValue<string>("MapBoxToken")!;
-            IDictionary<string, string?> options = new Dictionary<string, string?>(mapBoxSettings.Options);
-            options.Add("access_token", accessToken);
-            mapBoxConfig.Options = options.ToImmutableList();
+            mapBoxConfig.Options = mapBoxSettings.Options
+                .Append(new KeyValuePair<string, string?>("access_token", accessToken))
+                .ToImmutableDictionary();
         });
         services.AddHttpClient<IMapBoxClient, MapBoxClient>(client =>
         {
