@@ -31,10 +31,11 @@ builder.Services.AddHsts(options =>
 builder.Services.AddDbContext<PetSearchContext>(options =>
 {
     string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-                              ?? throw new ArgumentException("No connection string found!");
+                              ??  throw new InvalidOperationException(
+                                  "Connection string 'Default Connection not found!");
     options.UseMySQL(connectionString);
 });
-builder.Services.AddHostedService<TokenRefreshService>();
+// builder.Services.AddHostedService<TokenRefreshService>();
 // Adding Services from Extensions/MyServiceCollectionExtensions
 builder.Services.AddPetFinderServicesCollection(builder.Configuration);
 builder.Services.AddMapBoxServicesCollection(builder.Configuration);
