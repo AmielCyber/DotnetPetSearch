@@ -56,7 +56,7 @@ public static class MyServicesCollectionExtensions
             .Get<PetSearchOpenApiSpecification>()!;
         services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo()
+            options.SwaggerDoc("LibraryOpenAPISpecification", new OpenApiInfo()
             {
                 Title = openApiSpecification.Title,
                 Description = openApiSpecification.Description,
@@ -67,6 +67,7 @@ public static class MyServicesCollectionExtensions
                     Url = new Uri(openApiSpecification.ClientAppLink)
                 }
             });
+            options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First()); 
             var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
             string xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
             options.IncludeXmlComments(xmlCommentsFullPath);
