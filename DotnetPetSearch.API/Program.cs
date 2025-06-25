@@ -4,6 +4,7 @@ using DotnetPetSearch.API.Middleware;
 using DotnetPetSearch.API.Services;
 using DotnetPetSearch.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -35,7 +36,7 @@ builder.Services.AddDbContext<PetSearchContext>(options =>
                                   "Connection string 'Default Connection not found!");
     options.UseMySQL(connectionString);
 });
-// builder.Services.AddHostedService<TokenRefreshService>();
+builder.Services.AddHostedService<TokenRefreshService>();
 // Adding Services from Extensions/MyServiceCollectionExtensions
 builder.Services.AddPetFinderServicesCollection(builder.Configuration);
 builder.Services.AddMapBoxServicesCollection(builder.Configuration);
@@ -55,7 +56,10 @@ if (app.Environment.IsProduction()) app.UseHsts();
 
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseStatusCodePages();
-app.UseSwagger();
+app.UseSwagger(c =>
+{
+    c.OpenApiVersion = OpenApiSpecVersion.OpenApi2_0;
+});
 app.UseSwaggerUI();
 foreach (string clientNamePolicy in clients.Keys) app.UseCors(clientNamePolicy);
 app.UseAuthorization();

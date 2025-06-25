@@ -11,15 +11,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DotnetPetSearch.Data.Migrations
 {
     [DbContext(typeof(PetSearchContext))]
-    [Migration("20250610220707_TokenDbInitialSchema")]
-    partial class TokenDbInitialSchema
+    [Migration("20250625181724_InitialDb")]
+    partial class InitialDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.16")
+                .HasAnnotation("ProductVersion", "8.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("DotnetPetSearch.Data.Entities.PetFinderToken", b =>

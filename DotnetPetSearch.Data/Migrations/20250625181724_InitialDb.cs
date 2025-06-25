@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace DotnetPetSearch.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class TokenDbInitialSchema : Migration
+    public partial class InitialDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
