@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DotnetPetSearch.PetFinderHttpClient.Models;
 
@@ -70,6 +71,7 @@ public class PetFinderPet
     ///     A primary cropped photo with four different sizes:
     /// </summary>
     /// <example>"small", "medium", "large", or "full" </example>
+    [JsonPropertyName("primary_photo_cropped")]
     public PhotoSizeUrl? PrimaryPhotoCropped { get; init; }
 
     /// <summary>
