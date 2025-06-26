@@ -45,12 +45,6 @@ builder.Services.AddSwaggerGenWithOptions(builder.Configuration);
 
 WebApplication app = builder.Build();
 
-{
-    using var scope = app.Services.CreateScope();
-    using var context = scope.ServiceProvider.GetRequiredService<PetSearchContext>();
-    context.Database.EnsureCreated();
-}
-
 // Set middleware pipeline
 if (app.Environment.IsProduction()) app.UseHsts();
 
