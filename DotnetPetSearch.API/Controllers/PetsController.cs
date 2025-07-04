@@ -33,7 +33,7 @@ public class PetsController : ControllerBase
     {
         PetFinderPetListResponse petListResponse = await _petFinderClient.GetPetsAsync(parameters);
         Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(petListResponse.ToPaginationMetaData()));
-        return petListResponse.ToPetListDto();
+        return Ok(petListResponse.ToPetListDto());
     }
 
     /// <summary>
