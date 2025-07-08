@@ -6,6 +6,7 @@ namespace DotnetPetSearch.API.Middleware;
 
 public class ExceptionMiddleware
 {
+    private const string DefaultProblemDetailsTitle = "Server Error";
     private const string DefaultErrorDetail = "An error occurred while processing your request.";
     private readonly RequestDelegate _next;
     private readonly ILogger<ExceptionMiddleware> _logger;
@@ -33,7 +34,7 @@ public class ExceptionMiddleware
 
             var response = new ProblemDetails
             {
-                Title = e.Message,
+                Title = GetProblemDetailsTitle(e),
                 // Only show stack trace in development.
                 Detail = GetErrorDetail(e),
                 Status = (int)HttpStatusCode.InternalServerError
@@ -55,5 +56,10 @@ public class ExceptionMiddleware
     private string? GetErrorDetail(Exception exception)
     {
         return _env.IsDevelopment() ? exception.StackTrace : DefaultErrorDetail;
+    }
+
+    private string GetProblemDetailsTitle(Exception exception)
+    {
+        return _env.IsDevelopment()? exception.Message : DefaultProblemDetailsTitle; 
     }
 }
