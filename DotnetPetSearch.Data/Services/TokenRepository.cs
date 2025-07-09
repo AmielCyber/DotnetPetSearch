@@ -7,22 +7,17 @@ public class TokenRepository : ITokenRepository
 {
     private readonly PetSearchContext _context;
 
-    public TokenRepository(PetSearchContext context)
-    {
-        _context = context;
-    }
+    public TokenRepository(PetSearchContext context) => _context = context;
 
-    public async Task<PetFinderToken?> GetSingleTokenAsync()
-    {
-        return await _context.Tokens.FirstOrDefaultAsync();
-    }
+    public async Task<PetFinderToken?> GetSingleTokenAsync() =>
+        await _context.Tokens.FirstOrDefaultAsync();
 
     public async Task SaveTokenAsync(PetFinderToken token)
     {
         PetFinderToken? tokenEntity = await _context.Tokens.FirstOrDefaultAsync();
         if (tokenEntity == null)
         {
-            await _context.Tokens.AddAsync(token);
+            _context.Tokens.Add(token);
         }
         else
         {
